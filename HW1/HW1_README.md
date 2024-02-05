@@ -16,9 +16,13 @@
 
 ## Решение:
 Начальная конфигурация Windows + установленный Docker Dekstop, поэтому все команды для докера работают в cmd. Собираю контейнер командой ```docker build -t otus-cuda:1.0.0 .``` 
-Установленная ОС + процессор
+
+Установленная ОС + процессор:
+
 ![image](https://github.com/shakhovak/CV_OTUS_course/assets/89096305/a3516f1b-4e15-4b4b-9663-38eeb1634979)
+
 ![image](https://github.com/shakhovak/CV_OTUS_course/assets/89096305/a9644f81-3642-4845-b3fd-f84e9be7dc43)
+
 
 Запускаю контейнер командой:  ```docker run -it --name otus --volume=/home/data:/playground/data -p 8789:8789 --gpus all --rm otus-test:1.0.0```
 
