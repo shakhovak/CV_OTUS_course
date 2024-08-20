@@ -35,6 +35,9 @@
 | DeepFace, VGG-Face  | 84.6%   |85.97% |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/DeepFace_class.ipynb)|
 | PCA, CatBoost  | 61.4%  | 60.58%  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/HW8_Face_recognition.ipynb)|
 | PCA, Dense Net  | 56.73%  | -  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/HW8_Face_recognition.ipynb)|
+| ContrastiveLoss, eucl distance top 10, 1/2 all pos combos  | 87.11%  | 87.25%   |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/triplet_loss_model_train4.ipynb)|
+| ContrastiveLoss, Dense Net, 1/2 all pos combos  | 86.73%  | -  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/triplet_loss_model_train4.ipynb)|
+| ContrastiveLoss, SVC, 1/2 all pos combos  | 85.94%  | 80.87%  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/triplet_loss_model_train4.ipynb)|
 
 ## Использование DeepFace
 [Ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/DeepFace_class.ipynb) с решением.  Использование библиотеки достаточно простое, возможен поиск по базе данных изображений. При запуске первого поиска запускается векторизация базы и сохранение ее в формате pkl. Следующие поиски запускается уже по векторизованной базе. Результат по большинству классов неплохой, проблема только в фотографиях нескольких персон. Этот результат возьму за baseline и попробую его превысить :).
@@ -50,3 +53,14 @@
 ![image](https://github.com/user-attachments/assets/cbfba114-dbb4-45f8-8dc9-c5d4523e1b80)
 
 Неплохие результаты дают экперименты с 150-200 компонентами, однако несмотря на нечестное преимущество результаты все равно хуже :(.
+
+## Обучение на Contrastive Loss
+[Ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/triplet_loss_model_train4.ipynb) с решением.
+В данном подходе для классификации лиц будут использовать эмбеддинги, полученные от ResNet18 при обучении на Contrastive Loss, который штрафует за увеличение косинусного расстояния между похожими объектами. Оцениваются эмбеддингы с помощью классификации на тестовой выборке: 
+- путем выборки из обучающих данных векторов, которые имеют наименьшее расстояние с тестовыми данными
+- использование векторов в качестве фичей для полносвязной сети
+- использованием векторов в качестве фичей для SVM
+Будут также использованы вырезанные изображения лиц как и для PCA экспериментов.
+
+# Выводы:
+Использование эмббедингов из ResNet18, обученной на Contrastive Loss показало лучшие результаты, сопоставимые с готовой библиотекой (пусть и не совсем честные). При этом была использована только половина все возможных положительных комбинаций, соответсвенно есть потенциал для улучшения модели.
