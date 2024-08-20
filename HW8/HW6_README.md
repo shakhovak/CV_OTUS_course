@@ -35,3 +35,18 @@
 | DeepFace, VGG-Face  | 84.6%   |85.97% |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/DeepFace_class.ipynb)|
 | PCA, CatBoost  | 61.4%  | 60.58%  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/HW8_Face_recognition.ipynb)|
 | PCA, Dense Net  | 56.73%  | -  |[ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/HW8_Face_recognition.ipynb)|
+
+## Использование DeepFace
+[Ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/DeepFace_class.ipynb) с решением.  Использование библиотеки достаточно простое, возможен поиск по базе данных изображений. При запуске первого поиска запускается векторизация базы и сохранение ее в формате pkl. Следующие поиски запускается уже по векторизованной базе. Результат по большинству классов неплохой, проблема только в фотографиях нескольких персон. Этот результат возьму за baseline и попробую его превысить :).
+
+![image](https://github.com/user-attachments/assets/4e769590-5020-4677-91c6-873cbcb55ce8)
+
+## Использование PCA
+[Ноутбук](https://github.com/shakhovak/CV_OTUS_course/blob/master/HW8/HW8_Face_recognition.ipynb) с решением.
+В данном подходе буду использовать рассмотренный на занятии алгоритм снижения размерности вектора изображения с помощью PCA. Основная идея заключается в том, что обучать классификатор можно на сокращенной версии изображений в виде главных компонет. В рамках данного решения я уже буду в вырезанными из основного датасета изображениями лиц и приведенными к общей размерности. 
+> [!IMPORTANT]
+> Получается не совсем честной преимущество при сравнении с DeepFace, так как точность детекции лица здесь = 100%!!!
+
+![image](https://github.com/user-attachments/assets/cbfba114-dbb4-45f8-8dc9-c5d4523e1b80)
+
+Неплохие результаты дают экперименты с 150-200 компонентами, однако несмотря на нечестное преимущество результаты все равно хуже :(.
