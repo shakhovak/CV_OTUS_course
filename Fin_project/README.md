@@ -70,16 +70,55 @@ class Identity(nn.Module):
 
 Первая часть экспериментов будет использовать готовые модели ("из коробки"), вторая часть - те же самые подходы, как и в первой части, но уже на обученных моделях.
 
-ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss , а также просто на классификацию картинок на категории. TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss. 
+ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_training.ipynb)) , а также просто на классификацию картинок на категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_class.ipynb)). TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss только из названия товара - title ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers2.ipynb)) и из названия + все категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers3.ipynb))
+
+ ```python
+class ContrastiveLoss(torch.nn.Module):
+
+    def __init__(self, margin=2.0):
+        super(ContrastiveLoss, self).__init__()
+        self.margin = margin
+
+    def forward(self, output1, output2, label):
+        euclidean_distance = F.pairwise_distance(output1, output2)
+        pos = (1 - label) * torch.pow(euclidean_distance, 2)
+        neg = (label) * torch.pow(
+            torch.clamp(self.margin - euclidean_distance, min=0.0), 2
+        )
+        loss_contrastive = torch.mean(pos + neg)
+        return loss_contrastive
+```
+
+ ```python
+class CosineSimilarityLoss(torch.nn.Module):
+    def __init__(self):
+        super(CosineSimilarityLoss, self).__init__()
+
+    def forward(self, output1, output2, label):
+        cosine_sim = F.cosine_similarity(output1, output2)
+        loss_fn = nn.MSELoss()
+        loss_similarity = loss_fn(cosine_sim, label)
+        return loss_similarity
+```
+Помимо общей метрики посмотрю выдачу алгоритма для позиций товаров с id 500,626,621,0 для ручной оценки с точки зрения выбора марки товара и ценовой категории. При этом допускаю, что при обучении на категории может ухудшиться в рамках поиска аналогичных моделей.
 
 Проводимые эксперименты описаны в таблице ниже:
 
 | Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
 | :---:   | :---: | :---: |:---: |:---: |
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | emb_comparison_img_v1.ipynb|85,21|2 из 10, не находит все артикулы той же модели|
+| img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
+| title |Использование только title для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|73,21|5 из 10, большинство артикулов в выдаче не только одной категории, но и марки кроме нескольких категорий |
+| title+cat |Использование title+cat для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb]()|85,11|4 из 10, хуже стал находить марки|
+| text_all |Использование всей текстовой инфо с карточки для текстового эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_text.ipynb]()|63,14|2 из 10, находит только по 1 артикулу той же модели|
+| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
+| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
+| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
+| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
+| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
 
 
-Помимо общей метрики посмотрю выдачу алгоритма для позиций товаров с id 500,626,621,0 для ручной оценки с точки зрения выбора марки товара и ценовой категории. При этом допускаю, что 
+![image](https://github.com/user-attachments/assets/a03fe7c1-8948-4bbe-88b9-74227ef61a07)
+
 ## Структура репозитория
 
 ## Выводы
