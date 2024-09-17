@@ -153,9 +153,9 @@ class CosineSimilarityLoss(torch.nn.Module):
 ├───models_training 
 ├───experiment_notebooks -ноутбуки с экспериментами
 ├───data
-│       comparable_data.csv - сценарии при низких скорах похожести
-│       сompany_data.csv - база данных 
-│       data_analysis_fin.ipynb - исходные данные
+│       comparable_data.csv - база данных 
+│       сompany_data.csv - данные для запросов 
+│       data_analysis_fin.ipynb - обработка данных
 ```
 ## Выводы
 
