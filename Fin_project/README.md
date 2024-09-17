@@ -66,7 +66,9 @@ class Identity(nn.Module):
 
 При этом knn обрабатывает данные компании в 1 тыс. позиций примерно 30 мин для выдачи топ 10, ANNOY менее 1 сек (2500 it/s). Поэтому в экспериментах буду использовать алгоритм ann как основной, а knn как дополнитльный, если будет переранжирование выдачи алгоритма.
 ## Эксперименты
-В рамках проекта буду оценивать результат выдачи топ 10 на основе раздичных вариантов эмбедингов. При этом, если товар включенный в топ 10 принадлежит к той же группе товаров, что и искомый, то данный вариант выдачи получает 1, если принадлежит к другой категории товаров, то получает 0. В итоге по каждому товару в тестовой выборке (выборка товаров компании) можно получить точнойсть выдачи в виде Accuracy@10, а по всему алгоритму можно подсчитать среднее значение данного показателя.
+В рамках проекта буду оценивать результат выдачи топ 10 на основе различных вариантов эмбедингов. При этом, если товар включенный в топ 10 принадлежит к той же группе товаров, что и искомый, то данный вариант выдачи получает 1, если принадлежит к другой категории товаров, то получает 0. В итоге по каждому товару в тестовой выборке (выборка товаров компании) можно получить точнойсть выдачи в виде Accuracy@10, а по всему алгоритму можно подсчитать среднее значение данного показателя.
+
+Помимо общей метрики посмотрю выдачу алгоритма для позиций товаров с id 500,626,621,0 для ручной оценки с точки зрения выбора марки товара и ценовой категории. При этом допускаю, что при обучении на категории может ухудшиться в рамках поиска аналогичных моделей.
 
 Первая часть экспериментов будет использовать готовые модели ("из коробки"), вторая часть - те же самые подходы, как и в первой части, но уже на обученных моделях.
 
@@ -80,8 +82,8 @@ class Identity(nn.Module):
 | text_all |Использование всей текстовой инфо с карточки для текстового эмбедингов| [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_text.ipynb)|63,14|4 из 10, находит только по 1 артикулу той же модели|
 | img+title |Конкатенация картиночного и текстового векторов | [emb_comparative_combined.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined.ipynb)|85,18|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
 | img+title+cat |Конкатенация картиночного и текстового векторов | [emb_comparative_combined.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined.ipynb)|84,91|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
-| img40+title_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb]()|86,77|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
-| img40+title+cat_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb]()|90,36|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
+| img40+title_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank.ipynb)|86,77|5 из 10,|
+| img40+title+cat_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank.ipynb)|90,36|5 из 10|
 
 Вторая часть экспериментов связана с обучением моделей для эмбединга.
 ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_training.ipynb)) , а также просто на классификацию картинок на категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_class.ipynb)). TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss (формула для расчета из библиотеки Sentence Transformers) только из названия товара - title ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers2.ipynb)) и из названия + все категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers3.ipynb))
@@ -117,9 +119,14 @@ class CosineSimilarityLoss(torch.nn.Module):
         loss_similarity = loss_fn(cosine_sim, label)
         return loss_similarity
 ```
-Помимо общей метрики посмотрю выдачу алгоритма для позиций товаров с id 500,626,621,0 для ручной оценки с точки зрения выбора марки товара и ценовой категории. При этом допускаю, что при обучении на категории может ухудшиться в рамках поиска аналогичных моделей.
 
 
+**Эксперименты с моделями "из коробки" без обучения**
+
+| Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
+| :---:   | :---: | :---: |:---: |:---: |
+| img_train_ContLoss |Использование только картиночных эмбедингов, ResNet, обученная на Contrastive Loss | [emb_comparison_img.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img.ipynb)|55,03|1 из 10, адекватная выдача только у дорожек :(|
+| img_train_class |Использование только картиночных эмбедингов, ResNet, обученная на классификацию изоражений на категорию товара | [emb_comparison_img_v3.ipynb]()|55,03|1 из 10, адекватная выдача только у дорожек :(|
 
 
 ![image](https://github.com/user-attachments/assets/a03fe7c1-8948-4bbe-88b9-74227ef61a07)
