@@ -126,7 +126,7 @@ class CosineSimilarityLoss(torch.nn.Module):
 | Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
 | :---:   | :---: | :---: |:---: |:---: |
 | img_train_ContLoss |Использование только картиночных эмбедингов, ResNet, обученная на Contrastive Loss | [emb_comparison_img.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img.ipynb)|55,03|1 из 10, адекватная выдача только у дорожек :(|
-| img_train_class |Использование только картиночных эмбедингов, ResNet, обученная на классификацию изоражений на категорию товара | [emb_comparison_img_v3.ipynb]()|55,03|1 из 10, адекватная выдача только у дорожек :(|
+| img_train_class |Использование только картиночных эмбедингов, ResNet, обученная на классификацию изоражений на категорию товара | [emb_comparison_img_v3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v3.ipynb)|94,55|8 из 10, хотя стал меньше предлагать вариантов той же модели|
 
 
 ![image](https://github.com/user-attachments/assets/a03fe7c1-8948-4bbe-88b9-74227ef61a07)
