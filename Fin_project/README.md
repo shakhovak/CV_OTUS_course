@@ -58,10 +58,10 @@ class Identity(nn.Module):
 
 ![image](https://github.com/user-attachments/assets/37332b23-3c25-4744-92b8-d3801c92691f)
 
-Выдача алгоритма knn (перебор всей базы)
+**Выдача алгоритма knn (перебор всей базы)**
 ![image](https://github.com/user-attachments/assets/62fe034c-56c1-4bc7-9c01-2ebd998184a4)
 
-Выдача алгоритма ann (50 деревьев)
+**Выдача алгоритма ann (50 деревьев)**
 ![image](https://github.com/user-attachments/assets/a7b050ac-2f21-4b82-bbe3-8cb6b8c24c2b)
 
 При этом knn обрабатывает данные компании в 1 тыс. позиций примерно 30 мин для выдачи топ 10, ANNOY менее 1 сек (2500 it/s). Поэтому в экспериментах буду использовать алгоритм ann как основной, а knn как дополнитльный, если будет переранжирование выдачи алгоритма.
@@ -70,8 +70,21 @@ class Identity(nn.Module):
 
 Первая часть экспериментов будет использовать готовые модели ("из коробки"), вторая часть - те же самые подходы, как и в первой части, но уже на обученных моделях.
 
-ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_training.ipynb)) , а также просто на классификацию картинок на категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_class.ipynb)). TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss только из названия товара - title ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers2.ipynb)) и из названия + все категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers3.ipynb))
+**Эксперименты с моделями "из коробки" без обучения**
 
+| Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
+| :---:   | :---: | :---: |:---: |:---: |
+| img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|3 из 10, находит только по 1 артикулу той же модели|
+| title |Использование только title для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_text.ipynb)|73,21|6 из 10, большинство артикулов в выдаче не только одной категории, но и марки кроме нескольких категорий |
+| title+cat |Использование title+cat для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_text.ipynb)|85,11|4 из 10, хуже стал находить марки|
+| text_all |Использование всей текстовой инфо с карточки для текстового эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_text.ipynb)|63,14|4 из 10, находит только по 1 артикулу той же модели|
+| img+title |Конкатенация картиночного и текстового векторов, resnet + tinybert БЕЗ дообучения  | [emb_comparative_combined.ipynb]()|85,18|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
+| img+title+cat |Конкатенация картиночного и текстового векторов, resnet + tinybert БЕЗ дообучения  | [emb_comparative_combined.ipynb]()|84,91|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
+
+Вторая часть экспериментов связана с обученим
+ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_training.ipynb)) , а также просто на классификацию картинок на категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_class.ipynb)). TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss (формула для расчета из библиотеки Sentence Transformers) только из названия товара - title ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers2.ipynb)) и из названия + все категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers3.ipynb))
+
+**Используемый Contrastive Loss для обучения ResNet**
  ```python
 class ContrastiveLoss(torch.nn.Module):
 
@@ -89,6 +102,8 @@ class ContrastiveLoss(torch.nn.Module):
         return loss_contrastive
 ```
 
+**Используемый CosineSimilarityLoss для обучения ResNet**
+
  ```python
 class CosineSimilarityLoss(torch.nn.Module):
     def __init__(self):
@@ -102,19 +117,7 @@ class CosineSimilarityLoss(torch.nn.Module):
 ```
 Помимо общей метрики посмотрю выдачу алгоритма для позиций товаров с id 500,626,621,0 для ручной оценки с точки зрения выбора марки товара и ценовой категории. При этом допускаю, что при обучении на категории может ухудшиться в рамках поиска аналогичных моделей.
 
-Проводимые эксперименты описаны в таблице ниже:
 
-| Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
-| :---:   | :---: | :---: |:---: |:---: |
-| img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
-| title |Использование только title для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|73,21|5 из 10, большинство артикулов в выдаче не только одной категории, но и марки кроме нескольких категорий |
-| title+cat |Использование title+cat для текстового эмбединга, tinybert БЕЗ дообучения  | [emb_comparison_text.ipynb]()|85,11|4 из 10, хуже стал находить марки|
-| text_all |Использование всей текстовой инфо с карточки для текстового эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_text.ipynb]()|63,14|2 из 10, находит только по 1 артикулу той же модели|
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
-| Img |Использование только картиночных эмбедингов, resnet БЕЗ дообучения  | [emb_comparison_img_v1.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v1.ipynb)|85,21|2 из 10, находит только по 1 артикулу той же модели|
 
 
 ![image](https://github.com/user-attachments/assets/a03fe7c1-8948-4bbe-88b9-74227ef61a07)
