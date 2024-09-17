@@ -82,8 +82,13 @@ def display_k_neighbours(k, query_tensor, database_tensors, database_df):
     plt.show()
 
 
-def display_ann_neighbours(k, query_tensor, forest, database_df):
-    top_k_idx = forest.get_nns_by_vector(query_tensor.cpu().detach().tolist(), k)
+def display_ann_neighbours(k, query_tensor, forest, database_df, combined=False):
+    if combined:
+        query_tensor = query_tensor.cpu().detach().tolist()
+        query_tensor = [x[0] for x in query_tensor]
+        top_k_idx = forest.get_nns_by_vector(query_tensor, k)
+    else:
+        top_k_idx = forest.get_nns_by_vector(query_tensor.cpu().detach().tolist(), k)
 
     fig = plt.figure(figsize=(15, 9))
 
@@ -104,9 +109,19 @@ def display_ann_neighbours(k, query_tensor, forest, database_df):
 
 
 def display_random_item(
-    k, k_img, k_text, random_idx, method, company_data,
-    company_emb, database_emb, comparable_data, forest,
-    text_model, tokenizer
+    k,
+    k_img,
+    k_text,
+    random_idx,
+    method,
+    company_data,
+    company_emb,
+    database_emb,
+    comparable_data,
+    forest,
+    text_model,
+    tokenizer,
+    info_used="title_only",
 ):
     img = cv2.imread(company_data.iloc[random_idx]["img_ref"])
     fig, ax = plt.subplots(figsize=(2, 2))
@@ -131,6 +146,14 @@ def display_random_item(
             forest=forest,
             database_df=comparable_data,
         )
+    elif method == 'ann_combined':
+        display_ann_neighbours(
+            k,
+            query_tensor=company_emb[random_idx],
+            forest=forest,
+            database_df=comparable_data,
+            combined=True
+        )
     else:
         display_ann_rerank(
             k_img=k_img,
@@ -142,7 +165,7 @@ def display_random_item(
             query_df=company_data,
             text_model=text_model,
             tokenizer=tokenizer,
-            info_used="title_only",
+            info_used=info_used,
         )
 
 
