@@ -137,8 +137,10 @@ class CosineSimilarityLoss(torch.nn.Module):
 | img40+title_rerank_train_v1 |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому, ResNet из коробки, tinybert обучен на Contrastive Loss на title| [emb_comparison_rerank 3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank%203.ipynb)|90,26|6 из 10|
 | img40+title+cat_rerank_train_v1 |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому, ResNet из коробки, tinybert обучен на Contrastive Loss на title | [emb_comparison_rerank 3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank%203.ipynb)|93,45|6 из 10|
 
+**Сводная диаграмма по всем экспериментам:**
 
-![image](https://github.com/user-attachments/assets/c99b01a1-a476-4e1b-9355-bbf00b73178b)
+![image](https://github.com/user-attachments/assets/dbdcc529-6ca3-4a9c-983e-a6aa7b81541e)
+
 
 
 ## Структура репозитория
@@ -157,5 +159,11 @@ class CosineSimilarityLoss(torch.nn.Module):
 ```
 ## Выводы
 
-1. При использовании моделей из коробоки лучший результат для выдачи топ 10 показали эмбединги из ResNet при переранжировании на текстовые из названия и категориию
-2. Текстовые
+1. При использовании моделей из коробки лучший результат для выдачи топ 10 показали эмбединги из ResNet при переранжировании на текстовые вектора, состоящие из названия и категории.
+2. Качество выдачи на эмбедингах из текста (название + категории), изображения и их конкатенации при использовании моделей из коробки не отличается.
+3. Обучение на Contrastive Loss дало бустинг в метрике только для текстовой модели, для картинок - качество ухудшилось. Лучшая выдача для картиночных эмбедингов получается при обучении на простую классификацию.
+4. Обучение дало следующие приросты в Acc@10:
+   - img only -> +9%
+   - text only (title + cat) -> +14%
+   - concat ->+0%
+   - rerank ->+3%
