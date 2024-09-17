@@ -82,8 +82,9 @@ class Identity(nn.Module):
 | text_all |Использование всей текстовой инфо с карточки для текстового эмбедингов| [emb_comparison_text.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_text.ipynb)|63,14|4 из 10, находит только по 1 артикулу той же модели|
 | img+title |Конкатенация картиночного и текстового векторов | [emb_comparative_combined.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined.ipynb)|85,18|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
 | img+title+cat |Конкатенация картиночного и текстового векторов | [emb_comparative_combined.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined.ipynb)|84,91|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
-| img40+title_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank.ipynb)|86,77|5 из 10,|
+| img40+title_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank.ipynb)|86,77|5 из 10|
 | img40+title+cat_rerank |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому | [emb_comparison_rerank.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank.ipynb)|90,36|5 из 10|
+| title40+img_rerank |Поиск 40 похожих по текстовому вектору, переранжирование по картиночному | [emb_comparison_rerank2.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank2.ipynb)|71,00|2 из 10, еще долго работает|
 
 Вторая часть экспериментов связана с обучением моделей для эмбединга.
 ResNet18 будет обучаться на создания кастомных картиночных эмбедингов с помощью Contrastive Loss и Cosine Similarity Loss ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_training.ipynb)) , а также просто на классификацию картинок на категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/resnet_class.ipynb)). TinyBert будет обучаться также на создания кастомных текстовых эмбедингов на Contrastive Loss (формула для расчета из библиотеки Sentence Transformers) только из названия товара - title ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers2.ipynb)) и из названия + все категории ([ноутбук здесь](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/models_training/sentence_transformers3.ipynb))
@@ -121,16 +122,40 @@ class CosineSimilarityLoss(torch.nn.Module):
 ```
 
 
-**Эксперименты с моделями "из коробки" без обучения**
+**Эксперименты с дообученными моделями**
 
 | Эксперимент | Описание  | Файл с ноутбуком   | Acc@10, %   |Визуальная оценка  |
 | :---:   | :---: | :---: |:---: |:---: |
 | img_train_ContLoss |Использование только картиночных эмбедингов, ResNet, обученная на Contrastive Loss | [emb_comparison_img.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img.ipynb)|55,03|1 из 10, адекватная выдача только у дорожек :(|
 | img_train_class |Использование только картиночных эмбедингов, ResNet, обученная на классификацию изоражений на категорию товара | [emb_comparison_img_v3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_img_v3.ipynb)|94,55|8 из 10, хотя стал меньше предлагать вариантов той же модели|
+| title_train_v1 |Только текстовые эмбединги от tiny bert, обученного на Contrastive Loss на основе title | [emb_comarison_text2.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comarison_text2.ipynb)|87,03|8 из 10, хорошо также поюбирает модели|
+| title+cat_train_v1 |Только текстовые эмбединги от tiny bert, обученного на Contrastive Loss на основе title| [emb_comarison_text2.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comarison_text2.ipynb)|98,37|8 из 10, хорошо также поюбирает модели|
+| title_train_v2 |Только текстовые эмбединги от tiny bert, обученного на Contrastive Loss на основе title+cat | [emb_comarison_text_3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comarison_text_3.ipynb)|85,54|8 из 10, хорошо также поюбирает модели|
+| title+cat_train_v2 |Только текстовые эмбединги от tiny bert, обученного на Contrastive Loss на основе title+cat| [emb_comarison_text_3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comarison_text_3.ipynb)|99,53|8 из 10, хорошо также поюбирает модели|
+| img+title_train_v1 |Конкатенация картиночного и текстового векторов, ResNet из коробки, tinybert обучен на Contrastive Loss на title | [emb_comparative_combined_v2.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined_v2.ipynb)|85,19|3 из 10, обучение особо не помогло|
+| img+title+cat_train_v1 |Конкатенация картиночного и текстового векторов, ResNet из коробки, tinybert обучен на Contrastive Loss на title | [emb_comparative_combined_v2.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparative_combined_v2.ipynb)|85,01|3 из 10, очень похоже на выдачу только img модели, text не особо помог|
+| img40+title_rerank_train_v1 |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому, ResNet из коробки, tinybert обучен на Contrastive Loss на title| [emb_comparison_rerank 3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank%203.ipynb)|90,26|6 из 10|
+| img40+title+cat_rerank_train_v1 |Поиск 40 похожих по картиночному вектору, переранжирование по текстовому, ResNet из коробки, tinybert обучен на Contrastive Loss на title | [emb_comparison_rerank 3.ipynb](https://github.com/shakhovak/CV_OTUS_course/blob/master/Fin_project/experiments_notebooks/emb_comparison_rerank%203.ipynb)|93,45|6 из 10|
 
 
-![image](https://github.com/user-attachments/assets/a03fe7c1-8948-4bbe-88b9-74227ef61a07)
+![image](https://github.com/user-attachments/assets/c99b01a1-a476-4e1b-9355-bbf00b73178b)
+
 
 ## Структура репозитория
-
+```bash
+│   README.md - отчет для ДЗ
+│   models.py - файл со структурой для обучения модели ResNet
+│   utils.py - вспомогательные функции 
+|   
+├───parcers
+├───models_training 
+├───experiment_notebooks -ноутбуки с экспериментами
+├───data
+│       comparable_data.csv - сценарии при низких скорах похожести
+│       сompany_data.csv - база данных 
+│       data_analysis_fin.ipynb - исходные данные
+```
 ## Выводы
+
+1. При использовании моделей из коробоки лучший результат для выдачи топ 10 показали эмбединги из ResNet при переранжировании на текстовые из названия и категориию
+2. Текстовые
